@@ -26,7 +26,12 @@ void Room::join(Participant p) {
 }
 
 void Room::leave(Participant p) {
-    m_participants.erase(p);
+    auto it = m_participants.find(p);
+    if (it == m_participants.end()) {
+        logger<LT::ERR>() << "attempted to remove nonexistant participant" << std::endl;
+        return;
+    }
+    m_participants.erase(it);
     build::UStatusBuilder b;
     b.push_user(p->name());
     deliver(b.get(MsgKind::UOUT));

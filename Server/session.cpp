@@ -31,7 +31,7 @@ void Session::do_read_header() {
         {
             if (!ec && m_read_msg.decode_header()) {
                 do_read_body();
-            } else {
+            } else if (!m_name.empty()) {
                 m_room.leave(shared_from_this());
             }
         });
@@ -46,7 +46,7 @@ void Session::do_read_body() {
             if (!ec) {
                 handle_message();
                 do_read_header();
-            } else {
+            } else if (!m_name.empty()) {
                 m_room.leave(shared_from_this());
             }
         });
@@ -64,7 +64,7 @@ void Session::do_write() {
                     if (!m_write_msgs.empty()) {
                         do_write();
                     }
-                } else {
+                } else if (!m_name.empty()) {
                     m_room.leave(shared_from_this());
                 }
             });
