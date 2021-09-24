@@ -38,7 +38,7 @@ int main(int argc, const char* argv[]) {
         t.join();
 
     } catch (const std::exception &ex) {
-        logger() << "Exception: " << ex.what() << "\n";
+        logger<LT::ERR>() << "Exception: " << ex.what() << "\n";
         return 1;
     }
     return 0;

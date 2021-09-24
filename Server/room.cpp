@@ -4,16 +4,16 @@
 #include "logger.hpp"
 
 void Room::join(Participant p) {
-    build::UIOBuilder b;
+    build::UStatusBuilder b;
     for (auto &i: m_participants) {
         if (b.full()) {
-            p->deliver(b.get(MsgKind::UIN));
+            p->deliver(b.get(MsgKind::ONLINE));
             b.reset();
         }
         b.push_user(i->name());
     }
     if (!m_participants.empty())
-        p->deliver(b.get(MsgKind::UIN));
+        p->deliver(b.get(MsgKind::ONLINE));
     for (auto &m: m_recent_msgs)
         p->deliver(m);
 
@@ -22,15 +22,15 @@ void Room::join(Participant p) {
     deliver(b.get(MsgKind::UIN));
 
     m_participants.insert(p);
-    logger() << p->name() << " joined" << std::endl;
+    std::cout << p->name() << " joined" << std::endl;
 }
 
 void Room::leave(Participant p) {
     m_participants.erase(p);
-    build::UIOBuilder b;
+    build::UStatusBuilder b;
     b.push_user(p->name());
     deliver(b.get(MsgKind::UOUT));
-    logger() << p->name() << " left" << std::endl;
+    std::cout << p->name() << " left" << std::endl;
 }
 
 void Room::deliver(const Message &m) {
@@ -52,7 +52,7 @@ bool Room::available_name(const std::string& name) const {
 void Room::on_new_msg(const std::string &sender,
             const char *text, size_t len) 
 {
-    logger() << sender << ": " << text << std::endl;
+    std::cout << sender << ": " << text << std::endl;
     deliver(build::msg(sender, text, len));
 }
 

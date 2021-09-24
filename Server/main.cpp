@@ -9,6 +9,6 @@ int main() {
 
 		io_context.run();
 	} catch (const std::exception &ex) {
-		logger() << "Exception: " << ex.what() << "\n";
+		logger<LT::ERR>() << "Exception: " << ex.what() << "\n";
 	}
 }

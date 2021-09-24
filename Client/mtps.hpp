@@ -64,9 +64,9 @@ namespace parse {
         const char *m_text;
     };
 
-    class UsersInOut {
+    class UserStatus {
     public:
-        UsersInOut(const Message &src) 
+        UserStatus(const Message &src) 
             : m_src(src) {}
 
         bool valid() const {

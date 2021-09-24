@@ -71,9 +71,9 @@ namespace build {
         return m;
     }
 
-    class UIOBuilder {
+    class UStatusBuilder {
     public:
-        UIOBuilder() = default;
+        UStatusBuilder() = default;
 
         bool full() const {
             return (m_ucount + 1) * MAX_USERNAME_SIZE > MAX_BODY_SIZE;

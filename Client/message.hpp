@@ -10,6 +10,7 @@ enum class MsgKind {
     MSG,
     UIN,
     UOUT,
+    ONLINE,
     N
 };
 

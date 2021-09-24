@@ -42,7 +42,7 @@ private:
                 if (!ec) {
                     do_read_header();
                 } else {
-                    logger() << "failed to connect: " << ec.message() << endl;
+                    logger<LT::ERR>() << "failed to connect: " << ec.message() << endl;
                 }
             });
     }
@@ -55,11 +55,11 @@ private:
                     if (m_read_msg.decode_header()) {
                         do_read_body();
                     } else {
-                        logger() << "failed to decode header" << endl;
+                        logger<LT::ERR>() << "failed to decode header" << endl;
                         do_read_header();
                     }
                 } else {
-                    logger() << "lost connection" << endl;
+                    logger<LT::ERR>() << "lost connection" << endl;
                     m_socket.close();
                 }
             });
@@ -73,7 +73,7 @@ private:
                     handle_message();
                     do_read_header();
                 } else {
-                    logger() << "lost connection" << endl;
+                    logger<LT::ERR>() << "lost connection" << endl;
                     m_socket.close();
                 }
             });
@@ -89,7 +89,7 @@ private:
                     if (!m_write_msgs.empty())
                         do_write();
                 } else {
-                    logger() << "lost connection" << endl;
+                    logger<LT::ERR>() << "lost connection" << endl;
                     m_socket.close();
                 }
             });
@@ -101,13 +101,13 @@ private:
         {
             parse::Auth a(m_read_msg);
             if (!a.valid()) {
-                logger() << "received invalid auth message" << endl;
+                logger<LT::ERR>() << "received invalid auth message" << endl;
                 return;
             }
             if (a.empty()) {
-                logger() << "failed to authorize (username is already in use)" << endl;
+                logger<LT::ERR>() << "failed to authorize (username is already in use)" << endl;
             } else {
-                logger() << "authorized as " << a.username() << endl;
+                logger<LT::INFO>() << "authorized as " << a.username() << endl;
             }
 
             break;
@@ -116,7 +116,7 @@ private:
         {
             parse::Msg m(m_read_msg);
             if (!m.valid()) {
-                logger() << "received invalid chat message" << endl;
+                logger<LT::ERR>() << "received invalid chat message" << endl;
                 return;
             }
                
@@ -126,20 +126,32 @@ private:
         case MsgKind::UIN:
         case MsgKind::UOUT:
         {
-            parse::UsersInOut uio(m_read_msg);
+            parse::UserStatus uio(m_read_msg);
             if (!uio.valid()) {
-                logger() << "received invalid users in/out message" << endl;
+                logger<LT::ERR>() << "received invalid users in/out message" << endl;
                 return;
             }
             const char *status = m_read_msg.kind() == MsgKind::UIN ? 
-                "online" : "offline";
+                " joined" : " left";
             uio.for_each_user([status](const char *uname) {
-                cout << uname << " is " << status << endl;
+                cout << uname << status << endl;
+            });
+            break;
+        }
+        case MsgKind::ONLINE:
+        {
+            parse::UserStatus us(m_read_msg);
+            if (!us.valid()) {
+                logger<LT::ERR>() << "received invalid online users message" << endl;
+                return;
+            } 
+            us.for_each_user([](const char* uname) {
+                logger<LT::INFO>() << uname << " is online" << endl;
             });
             break;
         }
         default:
-            logger() << "received invalid message" << endl;
+            logger<LT::ERR>() << "received invalid message" << endl;
             break;
         }
     }
